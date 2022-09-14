@@ -1,8 +1,9 @@
-const { app, Menu, Tray } = require('electron')
+const { app, Menu, BrowserWindow } = require('electron')
 const path = require('path')
 const log = require('electron-log')
 const { ipcMain } = require('electron/main')
 const MainWindow = require('./MainWindow')
+const { AppTray } = require('./AppTray')
 
 const Store = require('./Store')
 // Set env
@@ -45,28 +46,7 @@ app.on('ready', () => {
 
   const icon = path.join(__dirname, 'assets', 'icons', 'tray_icon.png')
   // create tray
-  tray = new Tray(icon)
-
-  tray.on('click', () => {
-    if (mainWindow.isVisible() === true) {
-      mainWindow.hide()
-    } else {
-      mainWindow.show()
-    }
-  })
-
-  tray.on('right-click', () => {
-    const contextMenu = Menu.buildFromTemplate([
-      {
-        label: 'Quit',
-        click: () => {
-          app.isQuitting = true
-          app.quit()
-        },
-      },
-    ])
-    tray.popUpContextMenu(contextMenu)
-  })
+  tray = new AppTray(icon, mainWindow)
   // mainWindow.on('ready', () => (mainWindow = null))
 })
 
@@ -107,7 +87,7 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createMainWindow()
+    new MainWindow()
   }
 })
 
